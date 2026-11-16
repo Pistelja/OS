@@ -1,0 +1,7 @@
+# kompajlirani fajlovi
+a.out
+*.o
+zadaci/vezbanje/writeBytes
+zadaci/vezbanje/myCat
+# test fajlovi
+*.txt
