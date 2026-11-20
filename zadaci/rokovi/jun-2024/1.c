@@ -40,29 +40,21 @@ int main(int argc, char** argv)
     struct stat fInfo;
     check_error(stat(argv[1], &fInfo) != -1, "stat");
 
-    // size_t count = b - a + 1;
+    size_t count = b - a + 1;
 
-    char *buffer1 = malloc(a);
+    char *buffer1 = malloc(count);
     check_error(buffer1 != NULL, "malloc");
-    off_t ofset = fInfo.st_size - b;
-    char *buffer2 = malloc(ofset);
-    check_error(buffer2 != NULL, "malloc");
 
-    check_error(lseek(fd, 0, SEEK_SET)!=-1, "lseek");
-    int procitano = read(fd, buffer1, a);
+    check_error(lseek(fd, a, SEEK_SET)!=-1, "lseek");
+    int procitano = read(fd, buffer1, count);
     check_error(procitano != -1, "read");
 
-    check_error(lseek(fd, b, SEEK_SET)!=-1, "lseek");
-    int procitano2 = read(fd, buffer2, ofset);
-    check_error(procitano2 != -1, "read");
+    check_error(write(STDOUT_FILENO,buffer1, procitano) == procitano, "write");
 
-    check_error(lseek(fd, 0, SEEK_SET)!=-1, "lseek");
-    check_error(write(fd, buffer1, procitano) == procitano, "write");
-    check_error(write(fd, buffer2, procitano2) == procitano2, "write");
+    printf("\n%d\n", procitano);
 
     close(fd);
     free(buffer1);
-    free(buffer2);
     return 0;
 
 }
