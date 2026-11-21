@@ -67,7 +67,14 @@ int main(int argc, char** argv)
         dir = readdir(d);
     }
 
-    printf("%s\n", resenje);
+    if(resenje != NULL)
+    {
+        printf("%s\n", resenje);
+    }
+    else
+    {
+        printf("Ne postoji simbolicki link\n");
+    }
     free(resenje);
     closedir(d);
     

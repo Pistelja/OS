@@ -64,12 +64,13 @@ int main(int argc, char** argv)
     if(resenje != NULL)
     {
         printf("%s\n", resenje);
-        free(resenje);
+        
     }
     else
     {
-        printf("Ne postoji simbolicki link");
+        printf("Ne postoji simbolicki link\n");
     }
+    free(resenje);
    
     return 0;
 }
