@@ -37,7 +37,7 @@ int size_of_regular_files(const char *fpath, const struct stat *sb,int typeflag,
     UNUSED(ftwbuf);
 
     char *kopija = strdup(fpath);
-    check_error(kopija != NULL, "stdup");
+    check_error(kopija != NULL, "strdup");
     char *ime = basename(kopija);
     char *ext = strrchr(ime, '.');
 
