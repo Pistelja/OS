@@ -32,7 +32,6 @@ int main(int argc, char **argv)
     {
         char *fpath = argv[i];
         struct stat fInfo;
-        char *kopija = strdup(argv[i]);
         stat(fpath, &fInfo);
         if(!(S_ISREG(fInfo.st_mode)))
         {   
@@ -40,13 +39,14 @@ int main(int argc, char **argv)
             continue;
         }
         if(max_velicina < fInfo.st_size)
-        {
+        {   
+            char *kopija = strdup(argv[i]);
             max_velicina = fInfo.st_size;
             free(najveci_fajl);
             najveci_fajl = strdup(basename(kopija));
+            free(kopija);
             br++;
         }
-        free(kopija);
         i++;
     }
     if(br == 0)
