@@ -29,43 +29,61 @@
 
 #define UNUSED(x) ((void)x)
 
+static void obidji(const char *tekuci, time_t *max_vreme, char **resenje)
+{   
+    errno = 0;
+    DIR *d = opendir(tekuci);
+    check_error(d != NULL, "opendir");
+
+    struct dirent *dir;
+
+    while(1)
+    {   
+        errno = 0;
+        dir = readdir(d);
+        if(dir == NULL)
+        {
+            check_error(errno == 0, "readdir");
+            break;
+        }
+        if(strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
+        {
+            continue;
+        }
+        char full_path[4096];
+        int s = snprintf(full_path, sizeof(full_path), "%s/%s", tekuci, dir->d_name);
+        check_error(s != sizeof(full_path), "snprintf");
+
+        struct stat fInfo;
+        check_error(lstat(full_path, &fInfo) != -1, "lstat");
+
+        if(S_ISLNK(fInfo.st_mode))
+        {
+            if(*max_vreme < fInfo.st_mtime)
+            {
+                *max_vreme = fInfo.st_mtime;
+                char *kopija = strdup(dir->d_name);
+                free(*resenje);
+                *resenje = kopija;
+            }
+        }
+        else if(S_ISDIR(fInfo.st_mode))
+        {
+            obidji(full_path, max_vreme, resenje);
+        }
+    }
+    check_error(closedir(d) != -1, "closedir");
+}
+
 int main(int argc, char** argv)
 {
     check_error(argc == 2, "./a.out putanja_do_direktorijuma");
-    errno = 0;
-    DIR *d = opendir(argv[1]);
-    if(d == NULL)
-    {
-        check_error(errno != EACCES, "Permission denied");
-        check_error(errno == EACCES, "opendir");
-    }
-    struct dirent *dir = readdir(d);
-    errno = 0;
-    time_t max_time = 0;
+
+    time_t max_vreme = -1;
+    
     char *resenje = NULL;
-    while(dir != NULL)
-    {   
-        if(dir == NULL)
-    {
-        check_error(errno == 0, "readdir");
-    }
-        
-        struct stat fInfo;
-        char full_path[4096];
-        snprintf(full_path, sizeof(full_path), "%s/%s", argv[1], dir->d_name);
-        check_error(lstat(full_path, &fInfo)!= -1, "stat");
-        if(S_ISLNK(fInfo.st_mode))
-        {   
-            int modifikovano = fInfo.st_mtime;
-            if(modifikovano > max_time)
-            {
-                max_time = modifikovano;
-                free(resenje);
-                resenje = strdup(dir->d_name);
-            }
-        }
-        dir = readdir(d);
-    }
+
+    obidji(argv[1], &max_vreme, &resenje);
 
     if(resenje != NULL)
     {
@@ -73,10 +91,11 @@ int main(int argc, char** argv)
     }
     else
     {
-        printf("Ne postoji simbolicki link\n");
+        printf("Neuspeh");
     }
     free(resenje);
-    closedir(d);
-    
     return 0;
+
+    
+
 }
